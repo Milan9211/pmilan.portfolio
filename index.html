@@ -4,63 +4,302 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfolio - Milan Parekh</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        html { scroll-behavior: smooth; }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Inter', sans-serif;
+            color: white;
+            background: #020408;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* CANVAS — position fixe derrière tout */
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            display: block;
+        }
+
+        /* GRILLE SOL 3D */
+        .grid-floor {
+            position: fixed;
+            bottom: 0; left: 0;
+            width: 100%; height: 55vh;
+            z-index: 1;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(0, 200, 255, 0.2) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 200, 255, 0.2) 1px, transparent 1px);
+            background-size: 60px 60px;
+            transform: perspective(400px) rotateX(55deg);
+            transform-origin: bottom center;
+            mask-image: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+            animation: gridScroll 6s linear infinite;
+        }
+
+        @keyframes gridScroll {
+            from { background-position: 0 0; }
+            to   { background-position: 0 60px; }
+        }
+
+        .grid-floor::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 2px;
+            background: linear-gradient(90deg,
+                transparent 0%, transparent 10%,
+                rgba(0,200,255,0.9) 50%,
+                transparent 90%, transparent 100%
+            );
+            box-shadow: 0 0 30px rgba(0,200,255,0.7), 0 0 80px rgba(0,200,255,0.3);
+            animation: horizonPulse 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes horizonPulse {
+            from { opacity: 0.5; }
+            to   { opacity: 1; }
+        }
+
+        /* SCANLINE */
+        .scanline {
+            position: fixed;
+            left: 0; width: 100%; height: 6px;
+            background: linear-gradient(transparent, rgba(0,200,255,0.07), transparent);
+            z-index: 2;
+            pointer-events: none;
+            animation: scan 8s linear infinite;
+            top: -10%;
+        }
+
+        @keyframes scan {
+            from { top: -5%; }
+            to   { top: 105%; }
+        }
+
+        /* NAVIGATION */
+        nav {
+            width: 100%; height: 65px;
+            position: fixed; top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            background: rgba(2, 4, 8, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(0,200,255,0.15);
+        }
+
+        .nav-links { display: flex; list-style: none; padding: 0; margin: 0; }
+        .nav-links li { margin-right: 28px; }
+        .nav-links a {
+            text-decoration: none;
+            color: rgba(180,230,255,0.75);
+            font-size: 0.82rem; font-weight: 500;
+            text-transform: uppercase; letter-spacing: 1.5px;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+        .nav-links a:hover {
+            color: #00c8ff;
+            text-shadow: 0 0 12px rgba(0,200,255,0.9);
+        }
+
+        .logo {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700; font-size: 0.95rem;
+            color: #00c8ff; letter-spacing: 4px;
+            text-transform: uppercase;
+            border: 1px solid rgba(0,200,255,0.4);
+            padding: 6px 14px;
+            background: rgba(0,200,255,0.05);
+            text-shadow: 0 0 10px rgba(0,200,255,0.7);
+            box-shadow: 0 0 15px rgba(0,200,255,0.1);
+        }
+
+        /* ACCUEIL */
+        #accueil {
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center; text-align: center;
+        }
+
+        .hero-content h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 4.5rem; font-weight: 900;
+            margin: 0; letter-spacing: 8px; color: #fff;
+            text-shadow:
+                0 0 10px rgba(0,200,255,0.8),
+                0 0 30px rgba(0,200,255,0.5),
+                0 0 70px rgba(0,200,255,0.2);
+            animation: neonFlicker 5s ease-in-out infinite alternate;
+        }
+
+        @keyframes neonFlicker {
+            0%, 89%, 100% {
+                text-shadow:
+                    0 0 10px rgba(0,200,255,0.8),
+                    0 0 30px rgba(0,200,255,0.5),
+                    0 0 70px rgba(0,200,255,0.2);
+                opacity: 1;
+            }
+            92% { text-shadow: none; opacity: 0.7; }
+        }
+
+        .hero-content h2 {
+            font-size: 1.2rem; color: rgba(0,200,255,0.7);
+            margin-top: 16px; font-weight: 300;
+            letter-spacing: 6px; text-transform: uppercase;
+        }
+
+        /* CONTENU */
+        .container {
+            padding: 100px 20px 50px;
+            max-width: 1000px; margin: 0 auto;
+        }
+
+        .glass-card {
+            background: rgba(2, 8, 20, 0.72);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0,200,255,0.13);
+            border-radius: 4px; padding: 40px;
+            box-shadow: 0 4px 40px rgba(0,0,0,0.8), inset 0 1px 0 rgba(0,200,255,0.06);
+            margin-bottom: 24px;
+            color: #b0c8d8; line-height: 1.7;
+            transition: border-color 0.4s, box-shadow 0.4s;
+            position: relative;
+        }
+        .glass-card::before {
+            content: ''; position: absolute;
+            top: -1px; left: -1px; width: 20px; height: 20px;
+            border-top: 2px solid #00c8ff; border-left: 2px solid #00c8ff;
+        }
+        .glass-card::after {
+            content: ''; position: absolute;
+            bottom: -1px; right: -1px; width: 20px; height: 20px;
+            border-bottom: 2px solid #00c8ff; border-right: 2px solid #00c8ff;
+        }
+        .glass-card:hover {
+            border-color: rgba(0,200,255,0.3);
+            box-shadow: 0 0 20px rgba(0,200,255,0.07), 0 4px 50px rgba(0,0,0,0.9);
+        }
+
+        h3 {
+            color: #00c8ff;
+            border-bottom: 1px solid rgba(0,200,255,0.2);
+            padding-bottom: 10px; display: inline-block;
+            margin-top: 0; font-size: 1.4rem; letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0,200,255,0.5);
+            text-transform: uppercase;
+        }
+        .gros-titre {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.4rem; text-transform: uppercase;
+            color: white; border-bottom: none; letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(0,200,255,0.4);
+        }
+        h4 { color: #e0f4ff; font-size: 1.1rem; margin-top: 0; letter-spacing: 1px; text-transform: uppercase; }
+
+        .options-container { display: flex; gap: 20px; flex-wrap: wrap; }
+        .option-card { flex: 1; min-width: 300px; }
+
+        .job-list { list-style: none; padding-left: 0; }
+        .job-list li { padding: 6px 0; border-bottom: 1px solid rgba(0,200,255,0.06); color: #8ab0c0; font-size: 0.92rem; }
+        .job-list li::before { content: "›"; color: #00c8ff; margin-right: 10px; font-size: 1.1rem; }
+
+        footer {
+            text-align: center; padding: 20px;
+            color: rgba(0,200,255,0.3); font-size: 0.75rem;
+            margin-top: 50px; border-top: 1px solid rgba(0,200,255,0.08);
+            letter-spacing: 2px; text-transform: uppercase;
+        }
+
+        /* Tout le contenu passe au-dessus du canvas et de la grille */
+        nav, section, footer { position: relative; z-index: 10; }
+
+        /* CV & LETTRE */
+        .documents-container {
+            display: flex; gap: 30px; margin-top: 30px;
+            flex-wrap: wrap; justify-content: center;
+        }
+        .document-card {
+            flex: 1; min-width: 250px; max-width: 300px;
+            background: rgba(0,10,25,0.8);
+            border: 1px solid rgba(0,200,255,0.2);
+            border-radius: 4px; padding: 30px 20px;
+            text-align: center; text-decoration: none; color: white;
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+            cursor: pointer; position: relative;
+        }
+        .document-card::before {
+            content: ''; position: absolute;
+            top: -1px; left: -1px; width: 15px; height: 15px;
+            border-top: 2px solid #00c8ff; border-left: 2px solid #00c8ff;
+        }
+        .document-card::after {
+            content: ''; position: absolute;
+            bottom: -1px; right: -1px; width: 15px; height: 15px;
+            border-bottom: 2px solid #00c8ff; border-right: 2px solid #00c8ff;
+        }
+        .document-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.7), 0 0 25px rgba(0,200,255,0.2);
+            border-color: rgba(0,200,255,0.5);
+        }
+        .document-icon { font-size: 3.5rem; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(0,200,255,0.5)); }
+        .document-card h4 { margin: 10px 0; color: #00c8ff; font-size: 1.2rem; }
+        .document-card p { font-size: 0.85rem; margin-bottom: 20px; opacity: 0.6; }
+        .download-btn {
+            display: inline-block; padding: 9px 22px;
+            background: transparent; border: 1px solid #00c8ff;
+            border-radius: 2px; color: #00c8ff;
+            font-weight: 600; font-size: 0.82rem;
+            letter-spacing: 2px; text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        .document-card:hover .download-btn {
+            background: rgba(0,200,255,0.1);
+            box-shadow: 0 0 20px rgba(0,200,255,0.4);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            nav { padding: 0 15px; height: 60px; }
+            .nav-links li { margin-right: 12px; }
+            .nav-links a { font-size: 0.68rem; }
+            .logo { font-size: 0.8rem; padding: 4px 9px; }
+            .hero-content h1 { font-size: 2rem; letter-spacing: 4px; }
+            .hero-content h2 { font-size: 0.9rem; }
+            .container { padding: 80px 15px 30px; }
+            .glass-card { padding: 25px; }
+            .options-container { flex-direction: column; }
+            .document-card { min-width: 100%; max-width: 100%; }
+            .grid-floor { height: 35vh; }
+        }
+        @media (max-width: 480px) {
+            .nav-links { flex-wrap: wrap; justify-content: center; }
+            .nav-links li { margin: 4px 7px; }
+            .hero-content h1 { font-size: 1.6rem; }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- ÉTOILES EN ARRIÈRE-PLAN -->
-    <div class="stars">
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-        <div class="star"></div>
-    </div>
+    <canvas id="bg-canvas"></canvas>
+    <div class="grid-floor"></div>
+    <div class="scanline"></div>
 
     <nav>
         <ul class="nav-links">
@@ -71,7 +310,6 @@
             <li><a href="#competences">Compétences</a></li>
             <li><a href="#veille">Veille</a></li>
         </ul>
-
         <div class="logo">PORTFOLIO</div>
     </nav>
 
@@ -83,74 +321,65 @@
     </section>
 
     <section id="apropos" class="container">
-        <!-- --- SECTION CV & LETTRE --- -->
-<section id="cv-lettre" class="container">
-    <div class="glass-card">
-        <h3>Mes Documents</h3>
-        <p>Téléchargez mon CV et ma lettre de motivation au format PDF</p>
-        
-        <div class="documents-container">
-            <!-- Carte CV -->
-            <a href="CV.pdf" target="_blank" class="document-card">
-                <div class="document-icon">📄</div>
-                <h4>Mon CV</h4>
-                <p>Format PDF</p>
-                <span class="download-btn">Voir le CV →</span>
-            </a>
-            
-            <!-- Carte Lettre de motivation -->
-            <a href="Lettre.pdf" target="_blank" class="document-card">
-                <div class="document-icon">✉️</div>
-                <h4>Lettre de motivation</h4>
-                <p>Format PDF</p>
-                <span class="download-btn">Voir la lettre →</span>
-            </a>
+        <div class="glass-card">
+            <h3>Mes Documents</h3>
+            <p>Téléchargez mon CV et ma lettre de motivation au format PDF</p>
+            <div class="documents-container">
+                <a href="CV.pdf" target="_blank" class="document-card">
+                    <div class="document-icon">📄</div>
+                    <h4>Mon CV</h4>
+                    <p>Format PDF</p>
+                    <span class="download-btn">Voir le CV →</span>
+                </a>
+                <a href="Lettre.pdf" target="_blank" class="document-card">
+                    <div class="document-icon">✉️</div>
+                    <h4>Lettre de motivation</h4>
+                    <p>Format PDF</p>
+                    <span class="download-btn">Voir la lettre →</span>
+                </a>
+            </div>
         </div>
-    </div>
-</section>
-        
+
         <div class="glass-card">
             <h3>A propos de moi</h3>
-            <p>Je suis actuellement étudiant au Lycée de Cachan en première année de BTS SIO (Services Informatiques aux Organisations), option SISR (Solutions d’Infrastructures, Systèmes et Réseaux). Cette formation me permet d'apprendre à garantir la disponibilité, la performance et la sécurité des infrastructures réseaux et systèmes pour assurer la continuité de l'activité numérique.</p>
+            <p>Je suis actuellement étudiant au Lycée de Cachan en première année de BTS SIO (Services Informatiques aux Organisations), option SISR (Solutions d'Infrastructures, Systèmes et Réseaux). Cette formation me permet d'apprendre à garantir la disponibilité, la performance et la sécurité des infrastructures réseaux et systèmes pour assurer la continuité de l'activité numérique.</p>
             <p>Toujours en cours d'études, je vous propose de découvrir sur ce portfolio mes différents projets professionnels et académiques réalisés au cours de mon parcours.</p>
         </div>
 
         <div class="glass-card">
             <h3 class="gros-titre">QU'EST-CE QUE LE BTS SIO ?</h3>
-            <p>Le BTS Services Informatiques aux Organisations (SIO) s’adresse à ceux qui souhaitent se former en deux ans aux métiers d’administrateur réseau ou de développeur, pour intégrer directement le marché du travail ou poursuivre des études dans le domaine de l’informatique.</p>
-            <p>Le BTS SIO est un diplôme reconnu par l’État de niveau Bac+2. Cette formule répond aux attentes de la profession en matière de qualification. Le programme a évolué en fonction de la place et du rôle des TIC (Technologies de l'Information et de la Communication) et propose deux spécialités bien distinctes : le BTS SIO SISR et le BTS SIO SLAM.</p>
-            <p>Il associe aux enseignements théoriques et professionnels (en contrôle continu et final) deux stages en entreprise (10 à 11 semaines réparties sur les deux années d’études).</p>
+            <p>Le BTS Services Informatiques aux Organisations (SIO) s'adresse à ceux qui souhaitent se former en deux ans aux métiers d'administrateur réseau ou de développeur, pour intégrer directement le marché du travail ou poursuivre des études dans le domaine de l'informatique.</p>
+            <p>Le BTS SIO est un diplôme reconnu par l'État de niveau Bac+2. Le programme propose deux spécialités : le BTS SIO SISR et le BTS SIO SLAM. Il associe aux enseignements théoriques et professionnels deux stages en entreprise (10 à 11 semaines réparties sur les deux années d'études).</p>
         </div>
 
         <div class="options-container">
             <div class="glass-card option-card">
                 <h4>OPTION SISR</h4>
-                <p>L’option Solutions d’Infrastructures, Systèmes et Réseaux forme des professionnels des réseaux et équipements informatiques (installation, maintenance, sécurité). En sortant d’un BTS SIO SISR, vous serez capable de gérer et d’administrer le réseau d’une société et d’assurer sa sécurité ainsi que sa maintenance.</p>
-                <p><strong>Les techniciens supérieurs en informatique option SISR peuvent accéder aux métiers de :</strong></p>
+                <p>L'option Solutions d'Infrastructures, Systèmes et Réseaux forme des professionnels des réseaux et équipements informatiques.</p>
+                <p><strong>Métiers accessibles :</strong></p>
                 <ul class="job-list">
                     <li>Administrateur systèmes et réseaux</li>
                     <li>Informaticien support et déploiement</li>
-                    <li>Pilote d’exploitation</li>
+                    <li>Pilote d'exploitation</li>
                     <li>Support systèmes et réseaux</li>
-                    <li>Technicien d’infrastructure</li>
+                    <li>Technicien d'infrastructure</li>
                     <li>Technicien de production</li>
                     <li>Technicien micro et réseaux</li>
                 </ul>
             </div>
-
             <div class="glass-card option-card">
                 <h4>OPTION SLAM</h4>
-                <p>L’option Solutions Logicielles et Applications Métiers forme des spécialistes des logiciels (rédaction d’un cahier des charges, formulation des besoins et spécifications, développement, intégration au sein de la société).</p>
-                <p><strong>Les techniciens supérieurs en informatique option SLAM sont préparés aux métiers de :</strong></p>
+                <p>L'option Solutions Logicielles et Applications Métiers forme des spécialistes du développement logiciel.</p>
+                <p><strong>Métiers accessibles :</strong></p>
                 <ul class="job-list">
-                    <li>Développeur d’applications informatiques</li>
+                    <li>Développeur d'applications informatiques</li>
                     <li>Développeur informatique</li>
-                    <li>Analyste d’applications ou d’études</li>
+                    <li>Analyste d'applications ou d'études</li>
                     <li>Analyste programmeur</li>
                     <li>Programmeur analyste</li>
-                    <li>Programmeur d’applications</li>
+                    <li>Programmeur d'applications</li>
                     <li>Responsable des services applicatifs</li>
-                    <li>Technicien d’études informatiques</li>
+                    <li>Technicien d'études informatiques</li>
                 </ul>
             </div>
         </div>
@@ -159,22 +388,99 @@
     <section id="formations" class="container">
         <div class="glass-card"><h3>Mes Formations</h3><p>Contenu à venir...</p></div>
     </section>
-
     <section id="projets" class="container">
         <div class="glass-card"><h3>Mes Projets</h3><p>Contenu à venir...</p></div>
     </section>
-
     <section id="competences" class="container">
         <div class="glass-card"><h3>Mes Compétences</h3><p>Contenu à venir...</p></div>
     </section>
-
     <section id="veille" class="container">
         <div class="glass-card"><h3>Veille Technologique</h3><p>Contenu à venir...</p></div>
     </section>
 
     <footer>
-        <p>© 2024 Milan Parekh - BTS SIO</p>
+        <p>© 2024 Milan Parekh — BTS SIO</p>
     </footer>
+
+    <script>
+        const canvas = document.getElementById('bg-canvas');
+        const ctx    = canvas.getContext('2d');
+
+        let W, H, particles;
+        const COUNT    = 90;
+        const MAX_DIST = 140;
+        const R = 0, G = 200, B = 255; // couleur cyan
+
+        function resize() {
+            W = canvas.width  = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+        }
+
+        function createParticles() {
+            particles = [];
+            for (let i = 0; i < COUNT; i++) {
+                particles.push({
+                    x:  Math.random() * W,
+                    y:  Math.random() * H,
+                    vx: (Math.random() - 0.5) * 0.6,
+                    vy: (Math.random() - 0.5) * 0.6,
+                    r:  Math.random() * 2 + 1.5
+                });
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+
+            // Déplacer
+            for (const p of particles) {
+                p.x += p.vx;
+                p.y += p.vy;
+                if (p.x < 0 || p.x > W) p.vx *= -1;
+                if (p.y < 0 || p.y > H) p.vy *= -1;
+            }
+
+            // Lignes entre particules proches
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx   = particles[i].x - particles[j].x;
+                    const dy   = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < MAX_DIST) {
+                        const alpha = (1 - dist / MAX_DIST) * 0.45;
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(${R},${G},${B},${alpha})`;
+                        ctx.lineWidth = 0.8;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Points
+            for (const p of particles) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle   = `rgba(${R},${G},${B}, 0.9)`;
+                ctx.shadowBlur  = 10;
+                ctx.shadowColor = `rgba(${R},${G},${B}, 1)`;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        resize();
+        createParticles();
+        draw();
+
+        window.addEventListener('resize', () => {
+            resize();
+            createParticles();
+        });
+    </script>
 
 </body>
 </html>
